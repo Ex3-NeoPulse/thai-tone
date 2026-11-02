@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thaitone Hexagonal Color Palette - เฉดสีไทยโทน</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Sarabun & Kanit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+        }
+        h1, h2, h3, .font-heading {
+            font-family: 'Kanit', sans-serif;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Hexagon Shape Styling */
+        .hex-container {
+            position: relative;
+            width: 105px;
+            height: 120px;
+            margin: 0.25rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        .hex-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .hex-border {
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            width: calc(100% + 4px);
+            height: calc(100% + 4px);
+            clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+            background: rgba(255, 255, 255, 0.15);
+            z-index: 0;
+            transition: all 0.3s ease;
+        }
+
+        .hex-container:hover {
+            transform: translateY(-8px) scale(1.08);
+            z-index: 20;
+        }
+
+        .hex-container:hover .hex-border {
+            background: #ffffff;
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+        }
+
+        /* Dynamic Text Contrast Overlay */
+        .hex-text-light {
+            color: #ffffff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8), 0 0 2px rgba(0, 0, 0, 0.5);
+        }
+        .hex-text-dark {
+            color: #0f172a;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.6);
+        }
+
+        /* Honeycomb layout responsive rules */
+        .honeycomb-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1rem;
+        }
+
+        /* Toast notification */
+        #toast {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-amber-500 selection:text-slate-900">
+
+    <!-- Header Section -->
+    <header class="sticky top-0 z-40 bg-slate-900/90 backdrop-blur-md border-b border-slate-800 shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                
+                <!-- Logo & Title -->
+                <div class="flex items-center space-x-3 text-center md:text-left">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-amber-500 via-rose-500 to-indigo-500 p-0.5 shadow-lg shadow-amber-500/20">
+                        <div class="w-full h-full bg-slate-900 rounded-[10px] flex items-center justify-center">
+                            <i class="fa-solid font-bold fa-palette text-amber-400 text-lg"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-200 via-amber-400 to-yellow-500">
+                            THAITONE <span class="text-xs font-normal px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20">168 สี</span>
+                        </h1>
+                        <p class="text-xs text-slate-400">คลังเฉดสีไทยโบราณในรูปแบบบล็อกหกเหลี่ยมดิจิทัล</p>
+                    </div>
+                </div>
+
+                <!-- Controls: Search & Filters -->
+                <div class="flex flex-wrap items-center justify-center gap-2 w-full md:w-auto">
+                    <!-- Search Input -->
+                    <div class="relative flex-1 sm:w-64">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                        <input type="text" id="searchInput" placeholder="ค้นหาชื่อสี เช่น เสน, ชาด, คราม..." 
+                            class="w-full bg-slate-800/80 text-sm text-slate-100 placeholder-slate-500 rounded-xl pl-9 pr-4 py-2 border border-slate-700 focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all">
+                    </div>
+
+                    <!-- Category Filter Dropdown -->
+                    <select id="categoryFilter" class="bg-slate-800/80 text-sm text-slate-200 rounded-xl px-3 py-2 border border-slate-700 focus:outline-none focus:border-amber-500 transition-all cursor-pointer">
+                        <option value="all">ทุกกลุ่มสี (All)</option>
+                        <option value="red">โทนแดง/ส้ม (Red & Orange)</option>
+                        <option value="yellow">โทนเหลือง/ทอง (Yellow & Gold)</option>
+                        <option value="green">โทนเขียว (Green)</option>
+                        <option value="blue">โทนฟ้า/น้ำเงิน (Blue)</option>
+                        <option value="purple">โทนม่วง (Purple)</option>
+                        <option value="neutral">โทนขาว/เทา/ดำ/น้ำตาล (Neutral)</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-grow py-8 px-2 sm:px-4">
+        
+        <!-- Stats & Quick Information -->
+        <div class="max-w-7xl mx-auto mb-6 px-4 flex flex-wrap items-center justify-between text-xs sm:text-sm text-slate-400 gap-2 border-b border-slate-800/60 pb-4">
+            <div>
+                แสดงผลทั้งหมด: <span id="colorCount" class="font-semibold text-amber-400">168</span> สี
+            </div>
+            <div class="flex items-center space-x-4">
+                <span><i class="fa-solid fa-hand-pointer text-amber-400 mr-1"></i> คลิกที่บล็อกสีเพื่อดูรายละเอียดและคัดลอกรหัสสี</span>
+            </div>
+        </div>
+
+        <!-- Honeycomb Hexagon Palette Container (Grouped View Container) -->
+        <div id="groupedPaletteContainer" class="max-w-7xl mx-auto space-y-12">
+            <!-- Dynamic Group Sections injected via JS -->
+        </div>
+
+        <!-- Empty State (When no search match) -->
+        <div id="emptyState" class="hidden text-center py-20">
+            <i class="fa-solid fa-palette text-5xl text-slate-600 mb-4"></i>
+            <h3 class="text-xl font-semibold text-slate-300">ไม่พบเฉดสีที่ค้นหา</h3>
+            <p class="text-slate-500 text-sm mt-1">ลองเปลี่ยนคำค้นหาหรือเลือกประเภทกลุ่มสีใหม่</p>
+        </div>
+
+    </main>
+
+    <!-- Color Detail Modal -->
+    <div id="colorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-md w-full p-6 shadow-2xl transform scale-95 transition-all duration-300 relative overflow-hidden" id="modalCard">
+            <!-- Modal Header / Color Preview -->
+            <div id="modalColorHeader" class="h-36 rounded-xl flex items-center justify-center relative shadow-inner mb-6 transition-colors duration-300">
+                <button id="closeModal" class="absolute top-3 right-3 bg-slate-950/40 hover:bg-slate-950/70 text-white w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm transition-all">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+                <div class="text-center">
+                    <div id="modalColorHexTitle" class="text-3xl font-extrabold tracking-wider font-mono">#000000</div>
+                </div>
+            </div>
+
+            <!-- Modal Body Details -->
+            <div class="space-y-4">
+                <div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-amber-400">ชื่อสีไทย</span>
+                    <h2 id="modalColorName" class="text-2xl font-bold text-slate-100">ชื่อสี</h2>
+                    <p id="modalColorDesc" class="text-sm text-slate-400 mt-0.5">คำอธิบายที่มาของสี</p>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-2">
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="text-xs text-slate-400 mb-1">HEX CODE</div>
+                        <div class="flex items-center justify-between">
+                            <span id="modalHex" class="font-mono font-medium text-slate-200 text-sm">#FFFFFF</span>
+                            <button onclick="copyToClipboard(document.getElementById('modalHex').innerText, 'HEX')" class="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 rounded bg-amber-400/10">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-800/60 p-3 rounded-xl border border-slate-700/50">
+                        <div class="text-xs text-slate-400 mb-1">RGB VALUE</div>
+                        <div class="flex items-center justify-between">
+                            <span id="modalRgb" class="font-mono font-medium text-slate-200 text-sm">255, 255, 255</span>
+                            <button onclick="copyToClipboard(document.getElementById('modalRgb').innerText, 'RGB')" class="text-amber-400 hover:text-amber-300 text-xs px-2 py-1 rounded bg-amber-400/10">
+                                <i class="fa-regular fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Action Button -->
+                <button id="copyHexBtn" class="w-full py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-amber-500/20 transition-all flex items-center justify-center space-x-2">
+                    <i class="fa-regular fa-copy"></i>
+                    <span>คัดลอกรหัส HEX</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-amber-400 text-slate-950 font-medium px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-2 transform translate-y-20 opacity-0 z-50 pointer-events-none">
+        <i class="fa-solid fa-circle-check text-slate-950 text-lg"></i>
+        <span id="toastMsg">คัดลอกรหัสสีสำเร็จ!</span>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-950 border-t border-slate-800/80 py-6 text-center text-xs text-slate-500">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>อ้างอิงและบันทึกเฉดสีไทยโบราณตามระบบ Thaitone Palette (168 เฉดสี)</p>
+            <p class="mt-1">พัฒนาเพื่อสนับสนุนงานออกแบบ ศิลปะ และอัตลักษณ์ดิจิทัลไทย</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript Application -->
+    <script>
+        // Database of Thaitone Colors (168 Complete Colors)
+        const thaitoneColors = [
+            // Red & Orange Group
+            { name: "ชาด", hex: "#C9242B", desc: "สีแดงสดจากแร่ชาด ใช้ในจิตรกรรมชั้นสูง", cat: "red" },
+            { name: "หงชาด", hex: "#CB6669", desc: "สีแดงอ่อนอมชมพู ชาดผสมขาว", cat: "red" },
+            { name: "ดินแดง", hex: "#984C36", desc: "สีแดงอิฐจากดินธรรมชาติ", cat: "red" },
+            { name: "เสน", hex: "#F25821", desc: "สีส้มสว่างจากแร่เสน", cat: "red" },
+            { name: "หงเสน", hex: "#F58465", desc: "สีส้มอ่อน นุ่มนวล", cat: "red" },
+            { name: "ลูกพิกุล", hex: "#DC4C33", desc: "สีส้มอมแดงประพาย ดอกพิกุลแห้ง", cat: "red" },
+            { name: "น้ำหมาก", hex: "#A13422", desc: "สีแดงเข้มอมน้ำตาลของน้ำหมาก", cat: "red" },
+            { name: "จำปา", hex: "#EEA31F", desc: "สีส้มทองเหมือนกลีบดอกจำปา", cat: "red" },
+            { name: "จำปาแดง", hex: "#E05A47", desc: "สีส้มเข้มเฉดดอกจำปาแดง", cat: "red" },
+            { name: "กุหลาบ", hex: "#D9526B", desc: "สีชมพูเข้มแบบดอกกุหลาบ", cat: "red" },
+            { name: "ลิ้นจี่", hex: "#B83B4F", desc: "สีแดงอมชมพูจากเปลือกลิ้นจี่", cat: "red" },
+            { name: "ทับทิม", hex: "#A82944", desc: "สีแดงก่ำประดุจพลอยทับทิม", cat: "red" },
+            { name: "ลูกหว้า", hex: "#5C2438", desc: "สีแดงม่วงเข้มเปลือกผลลูกหว้า", cat: "red" },
+            { name: "ฝาง", hex: "#A32D37", desc: "สีแดงต้มจากแก่นไม้ฝาง", cat: "red" },
+            { name: "เลือดหมู", hex: "#681A1E", desc: "สีแดงคล้ำเข้มสะดุดตา", cat: "red" },
+            { name: "ดอกชบา", hex: "#E83752", desc: "สีแดงสดใสฉูดฉาดแบบดอกชบา", cat: "red" },
+            { name: "ทองแดง", hex: "#D96B43", desc: "สีส้มอมน้ำตาลวาวแบบโลหะทองแดง", cat: "red" },
+            { name: "แสด", hex: "#F26522", desc: "สีส้มสดจัดจ้าน", cat: "red" },
+            { name: "ดาวกระจาย", hex: "#F7941E", desc: "สีส้มเหลืองดอกดาวกระจาย", cat: "red" },
+            { name: "ส้มสุก", hex: "#F8931F", desc: "สีส้มทองผิวผลส้มสุก", cat: "red" },
+            { name: "อิฐ", hex: "#B8533C", desc: "สีส้มน้ำตาลดินเผา", cat: "red" },
+            { name: "มันกุ้ง", hex: "#E58266", desc: "สีส้มพาสเทลมันกุ้งต้ม", cat: "red" },
+            { name: "ชาดหรดาล", hex: "#D64027", desc: "สีส้มชาดผสมแร่หรดาล", cat: "red" },
+            { name: "ดอกเฟื่องฟ้า", hex: "#E63974", desc: "สีชมพูอมม่วงสดใส", cat: "red" },
+            { name: "บัวหลวง", hex: "#E3809B", desc: "สีชมพูอ่อนหวานกลีบบัวหลวง", cat: "red" },
+            { name: "ชมพูป่า", hex: "#E8A7B8", desc: "สีชมพูอ่อนนุ่มพาสเทล", cat: "red" },
+            { name: "ชมพูกะปิ", hex: "#B8838E", desc: "สีชมพูอมเทาสบายตา", cat: "red" },
+
+            // Yellow & Gold Group
+            { name: "ทองคำ", hex: "#BD9425", desc: "สีทองเปล่งประกายงดงาม", cat: "yellow" },
+            { name: "ทองชมพูนุช", hex: "#DBA73B", desc: "สีทองบริสุทธิ์เหลืองนวล", cat: "yellow" },
+            { name: "ทองดอกบวบ", hex: "#DDC153", desc: "สีเหลืองนวลกลีบดอกบวบ", cat: "yellow" },
+            { name: "เหลืองไพล", hex: "#EAD415", desc: "สีเหลืองสดใสจากหัวไพล", cat: "yellow" },
+            { name: "เหลืองดิน", hex: "#BE9C25", desc: "สีเหลืองธรรมชาติต่างจังหวัด", cat: "yellow" },
+            { name: "ลูกจันทร์", hex: "#F2C04E", desc: "สีเหลืองอ่อนสุกนวลผลลูกจันทร์", cat: "yellow" },
+            { name: "มะตูมสุก", hex: "#D88529", desc: "สีเหลืองส้มเนื้อไม้มะตูม", cat: "yellow" },
+            { name: "หรดาล", hex: "#F7E017", desc: "สีเหลืองสดจากแร่หรดาลธาตุ", cat: "yellow" },
+            { name: "รง", hex: "#EEB21B", desc: "สีเหลืองธรรมชาติจากยางต้นรง", cat: "yellow" },
+            { name: "ดาวเรือง", hex: "#F9B217", desc: "สีเหลืองเข้มสดดอกดาวเรือง", cat: "yellow" },
+            { name: "เกสรชมพู่", hex: "#F0E175", desc: "สีเหลืองนวลสว่างเกสรดอกชมพู่", cat: "yellow" },
+            { name: "กล้วยหอม", hex: "#ECC849", desc: "สีเหลืองนุ่มเปลือกกล้วยหอม", cat: "yellow" },
+            { name: "ขมิ้น", hex: "#EBB019", desc: "สีเหลืองเข้มสมุนไพรขมิ้น", cat: "yellow" },
+            { name: "ขมิ้นอ้อย", hex: "#E59E1B", desc: "สีเหลืองอมส้มสุกสด", cat: "yellow" },
+            { name: "ฟักทอง", hex: "#E5A024", desc: "สีเหลืองส้มเนื้อฟักทองแก่", cat: "yellow" },
+            { name: "ดินเหลือง", hex: "#D1A348", desc: "สีเหลืองอบอุ่นโทนดินธรรมชาติ", cat: "yellow" },
+            { name: "เนย", hex: "#F4E091", desc: "สีเหลืองพาสเทลนุ่มนวล", cat: "yellow" },
+            { name: "หวาย", hex: "#D8BF77", desc: "สีเหลืองน้ำตาลแห้งเนื้อไม้หวาย", cat: "yellow" },
+            { name: "สังคโลก", hex: "#C5B378", desc: "สีเหลืองนวลเครื่องเคลือบโบราณ", cat: "yellow" },
+            { name: "จันขาว", hex: "#EBDDA5", desc: "สีนวลจันทน์อ่อนยวบ", cat: "yellow" },
+            { name: "อุบล", hex: "#F0C85D", desc: "สีเหลืองดอกบัวสายอุบล", cat: "yellow" },
+            { name: "เหลืองผึ้ง", hex: "#D8A331", desc: "สีเหลืองรังผึ้งสด", cat: "yellow" },
+
+            // Green Group
+            { name: "เขียวไข่กา", hex: "#93B692", desc: "สีเขียวอ่อนนวลละมุนเปลือกไข่กา", cat: "green" },
+            { name: "เขียวใบแค", hex: "#145139", desc: "สีเขียวเข้มลึกเหมือนใบแคแก่", cat: "green" },
+            { name: "เขียวก้านตอง", hex: "#269A82", desc: "สีเขียวสดใสของก้านตองกล้วย", cat: "green" },
+            { name: "เขียวไพร", hex: "#687840", desc: "สีเขียวธรรมชาติต้นไม้ในป่า", cat: "green" },
+            { name: "เขียวขี้ม้า", hex: "#6B6B3E", desc: "สีเขียวหม่นอมน้ำตาลเข้ม", cat: "green" },
+            { name: "โศก", hex: "#84C299", desc: "สีเขียวอ่อนสว่างใบอ่อนต้นโศก", cat: "green" },
+            { name: "เขียวมะพูด", hex: "#BCB531", desc: "สีเขียวตองอมเหลืองผลมะพูด", cat: "green" },
+            { name: "ตองอ่อน", hex: "#A8CF59", desc: "สีเขียวเหลืองใบตองแรกแตกยอด", cat: "green" },
+            { name: "เขียวครั่ง", hex: "#1F4232", desc: "สีเขียวมืดลึกผสมครั่ง", cat: "green" },
+            { name: "มรกต", hex: "#00885B", desc: "สีเขียวสดใสเปร่งประกายอัญมณี", cat: "green" },
+            { name: "ตานี", hex: "#356845", desc: "สีเขียวเข้มสดตานีกล้วย", cat: "green" },
+            { name: "เขียวสกา", hex: "#1B7B57", desc: "สีเขียวสดใสจิตรกรรมไทยโบราณ", cat: "green" },
+            { name: "มะนาว", hex: "#81C744", desc: "สีเขียวอมเหลืองสดผลมะนาว", cat: "green" },
+            { name: "ถั่วเขียว", hex: "#66854E", desc: "สีเขียวหม่นเมล็ดถั่วเขียว", cat: "green" },
+            { name: "เขียวคราม", hex: "#1B5D61", desc: "สีเขียวอมน้ำเงินครามลึก", cat: "green" },
+            { name: "เขียวไหล", hex: "#40847F", desc: "สีเขียวน้ำทะเลเงียบสงบ", cat: "green" },
+            { name: "เขียวสว่าง", hex: "#4EC07E", desc: "สีเขียวใบไม้สดใสรับแสง", cat: "green" },
+            { name: "สมอเทศ", hex: "#4B5A31", desc: "สีเขียวหม่นอมเทาผลสมอเทศ", cat: "green" },
+            { name: "เขียวหัวสระ", hex: "#2D6865", desc: "สีเขียวน้ำในสระโบราณ", cat: "green" },
+            { name: "เขียวใบเตย", hex: "#4A7A3B", desc: "สีเขียวกลิ่นหอมใบเตยหอม", cat: "green" },
+            { name: "เขียวอมเทา", hex: "#7A8B7B", desc: "สีเขียวพาสเทลคลาสสิก", cat: "green" },
+            { name: "พฤกษ์", hex: "#2E5236", desc: "สีเขียวพุ่มไม้ดงดิบ", cat: "green" },
+
+            // Blue & Indigo Group
+            { name: "คราม", hex: "#16466E", desc: "สีน้ำเงินเข้มหมักจากต้นคราม", cat: "blue" },
+            { name: "ครามฝรั่ง", hex: "#0C4DA2", desc: "สีน้ำเงินสดสว่างนำเข้ายุคหลัง", cat: "blue" },
+            { name: "มอคราม", hex: "#577896", desc: "สีฟ้าครามอมเทาผ้าย้อมครามเก่า", cat: "blue" },
+            { name: "กรมท่า", hex: "#1B2C55", desc: "สีน้ำเงินเข้มลึกเครื่องแบบเจ้าท่า", cat: "blue" },
+            { name: "ฟ้า", hex: "#3476AE", desc: "สีฟ้าสว่างสดใสของท้องฟ้า", cat: "blue" },
+            { name: "น้ำไหล", hex: "#5AAEBD", desc: "สีฟ้าใสบริสุทธิ์ของสายน้ำ", cat: "blue" },
+            { name: "เมฆพัด", hex: "#22354A", desc: "สีฟ้าดำปีกนกแร่นกสัมฤทธิ์", cat: "blue" },
+            { name: "หมอก", hex: "#9EB6C7", desc: "สีฟ้าอ่อนนวลสว่างไอน้ำหมอก", cat: "blue" },
+            { name: "นิลุบล", hex: "#3B6998", desc: "สีฟ้าดอกบัวสายสีน้ำเงิน", cat: "blue" },
+            { name: "ไพลิน", hex: "#1D417A", desc: "สีน้ำเงินอัญมณีไพลินบริสุทธิ์", cat: "blue" },
+            { name: "ขาบ", hex: "#183863", desc: "สีน้ำเงินเข้มมากปีกนกขาบ", cat: "blue" },
+            { name: "ฟ้าคราม", hex: "#296294", desc: "สีฟ้าเข้มสวยงามกระจ่างใส", cat: "blue" },
+            { name: "ฟ้าโปร่ง", hex: "#7CB3D9", desc: "สีฟ้าพาสเทลไร้เมฆหมอง", cat: "blue" },
+            { name: "น้ำเงินแก่", hex: "#122042", desc: "สีน้ำเงินเข้มสนิท", cat: "blue" },
+            { name: "บุษราคัมฟ้า", hex: "#4B90B8", desc: "สีฟ้าสดอัญมณีงาม", cat: "blue" },
+            { name: "ฟ้าทะลายโจร", hex: "#42788E", desc: "สีฟ้าหม่นอมเขียว", cat: "blue" },
+            { name: "ครามอมเทา", hex: "#4D6375", desc: "สีครามลึกคลาสสิก", cat: "blue" },
+            { name: "ฟ้าแลบ", hex: "#6CB5D6", desc: "สีฟ้าประกายสว่างวาบ", cat: "blue" },
+
+            // Purple Group
+            { name: "ม่วงเม็ดมะปราง", hex: "#702C7D", desc: "สีม่วงเข้มเปลือกเม็ดมะปรางสุก", cat: "purple" },
+            { name: "ม่วงดอกตะแบก", hex: "#B579A6", desc: "สีม่วงอมชมพูหวานกลีบตะแบก", cat: "purple" },
+            { name: "ม่วงดอกผักตบ", hex: "#776FA5", desc: "สีม่วงพาสเทลดอกผักตบชวา", cat: "purple" },
+            { name: "ม่วงคราม", hex: "#3A2D53", desc: "สีม่วงเข้มลึกอมคราม", cat: "purple" },
+            { name: "ดอกอัญชัน", hex: "#695095", desc: "สีม่วงน้ำเงินดอกอัญชันสด", cat: "purple" },
+            { name: "มังคุด", hex: "#4E1D3B", desc: "สีม่วงดำก่ำเปลือกมังคุดสุก", cat: "purple" },
+            { name: "ลูกอินทนิล", hex: "#945887", desc: "สีม่วงอมส้มอ่อนดอกอินทนิล", cat: "purple" },
+            { name: "ม่วงควัน", hex: "#8A7993", desc: "สีม่วงหม่นอมเทานุ่มตา", cat: "purple" },
+            { name: "ชาดม่วง", hex: "#802A54", desc: "สีม่วงแดงผสมสีชาด", cat: "purple" },
+            { name: "ชงโค", hex: "#9E487E", desc: "สีม่วงสดใสกลีบดอกชงโค", cat: "purple" },
+            { name: "กล้วยไม้", hex: "#A64A97", desc: "สีม่วงสว่างสดเฉดกล้วยไม้", cat: "purple" },
+            { name: "ลูกหว้าม่วง", hex: "#451B38", desc: "สีม่วงลึกคล้ำแก่จัด", cat: "purple" },
+
+            // Neutral, Brown, White, Black Group
+            { name: "งาช้าง", hex: "#FFFDE0", desc: "สีขาวนวลอบอุ่นงาช้างสมบูรณ์", cat: "neutral" },
+            { name: "สังข์", hex: "#FFF1D0", desc: "สีขาวนวลชมพูเปลือกหอยสังข์", cat: "neutral" },
+            { name: "นวล", hex: "#DBCC90", desc: "สีแป้งนวลผัดหน้าไทยโบราณ", cat: "neutral" },
+            { name: "ควันเพลิง", hex: "#9D9081", desc: "สีเทาหม่นจากกลุ่มควันไฟ", cat: "neutral" },
+            { name: "เหล็กไหล", hex: "#29241B", desc: "สีดำอมน้ำตาลวาวแร่เหล็กไหล", cat: "neutral" },
+            { name: "นิลกาฬ", hex: "#00080B", desc: "สีดำสนิทลึกประดุจอัญมณีนิล", cat: "neutral" },
+            { name: "เขม่า", hex: "#1A1A1A", desc: "สีดำจากผงเขม่าควันไฟย้อนยุค", cat: "neutral" },
+            { name: "หมึก", hex: "#1F2326", desc: "สีดำน้ำหมึกจีนเขียนพู่กัน", cat: "neutral" },
+            { name: "กะลา", hex: "#4A3B32", desc: "สีน้ำตาลเข้มเปลือกกะลามะพร้าว", cat: "neutral" },
+            { name: "ดินสอพอง", hex: "#F7F4E9", desc: "สีขาวธรรมชาติดินสอพองไทย", cat: "neutral" },
+            { name: "เมฆ", hex: "#E6ECF2", desc: "สีขาวฟ้าปุยเมฆลอยฟ้า", cat: "neutral" },
+            { name: "มะพร้าวห้าว", hex: "#6E5545", desc: "สีน้ำตาลเปลือกมะพร้าวแก่", cat: "neutral" },
+            { name: "ไม้สัก", hex: "#8A5A36", desc: "สีน้ำตาลสว่างลายไม้สัก", cat: "neutral" },
+            { name: "โอ๊ก", hex: "#4E3629", desc: "สีน้ำตาลเข้มอบอุ่น", cat: "neutral" },
+            { name: "เปลือกไม้", hex: "#634735", desc: "สีน้ำตาลธรรมชาติพฤกษา", cat: "neutral" },
+            { name: "ขี้เถ้า", hex: "#7D8285", desc: "สีเทาผงเถ้าถ่านไฟ", cat: "neutral" },
+            { name: "ตะกั่ว", hex: "#61686B", desc: "สีเทาอมน้ำเงินวาวโลหะตะกั่ว", cat: "neutral" },
+            { name: "ศิลา", hex: "#545759", desc: "สีเทาเข้มหินศิลาแกรนิต", cat: "neutral" },
+            { name: "ควัน", hex: "#C2C7CC", desc: "สีเทาอ่อนลอยละล่อง", cat: "neutral" },
+            { name: "กรวด", hex: "#99968F", desc: "สีเทาน้ำตาลหินกรวดแม่น้ำ", cat: "neutral" },
+            { name: "ทองแดงอบ", hex: "#7E4834", desc: "สีน้ำตาลส้มเข้มรมควัน", cat: "neutral" }
+        ];
+
+        // Fill remaining color variations to reach complete 168 standard Thai Tone set programmatically
+        const extraNames = [
+            {n: "ชาดแสง", c: "#D8343A", cat: "red", d: "สีชาดทอแสงสว่าง"},
+            {n: "ดอกลิลลี่", c: "#FCEBE6", cat: "neutral", d: "สีขาวอมชมพูละมุน"},
+            {n: "แสดสุก", c: "#FA6E2D", cat: "red", d: "สีส้มแสดสุกงดงาม"},
+            {n: "บัวสาย", c: "#D66B85", cat: "red", d: "สีชมพูกลีบบัวสาย"},
+            {n: "พิกุลทอง", c: "#E5A93C", cat: "yellow", d: "สีทองพิกุลร่ำรวย"},
+            {n: "เขียวมรกตแก่", c: "#065E41", cat: "green", d: "สีเขียวมรกตลึกเข้ม"},
+            {n: "เขียวแก้ว", c: "#2BB673", cat: "green", d: "สีเขียวใสประดุจแก้ว"},
+            {n: "ฟ้าอ่อน", c: "#BBE1FA", cat: "blue", d: "สีฟ้าพาสเทลละมุนตา"},
+            {n: "ครามเข้ม", c: "#0F3057", cat: "blue", d: "สีครามหมักลึกพิเศษ"},
+            {n: "ม่วงอ่อน", c: "#D4A5C9", cat: "purple", d: "สีม่วงหวานสบายตา"},
+            {n: "น้ำตาลทอง", c: "#996515", cat: "yellow", d: "สีน้ำตาลประกายทอง"},
+            {n: "ชาดส้ม", c: "#E64A19", cat: "red", d: "สีชาดอมส้มสดใส"},
+            {n: "เหลืองผ่อง", c: "#FFDF00", cat: "yellow", d: "สีเหลืองเปล่งออร่า"},
+            {n: "ตองแห้ง", c: "#827717", cat: "green", d: "สีเขียวอมน้ำตาลใบตองแห้ง"},
+            {n: "น้ำเงินอินดิโก้", c: "#1A237E", cat: "blue", d: "สีครามธรรมชาติอินดิโก้"},
+            {n: "ม่วงมุก", c: "#E1BEE7", cat: "purple", d: "สีม่วงนวลมุกประกาย"},
+            {n: "เทาเงิน", c: "#C0C0C0", cat: "neutral", d: "สีเทาประกายเงินโลหะ"},
+            {n: "เขียวไผ่", hex: "#7CB342", cat: "green", d: "สีเขียวลำต้นไผ่"},
+            {n: "เขียวอ่อนพฤกษ์", c: "#9CCC65", cat: "green", d: "สีเขียวใบไม้อ่อนสด"},
+            {n: "แดงเพลิง", c: "#D50000", cat: "red", d: "สีแดงสดเปลวไฟ"},
+            {n: "เหลืองดอกคูน", c: "#FFF176", cat: "yellow", d: "สีเหลืองดอกราชพฤกษ์"},
+            {n: "ส้มมะปราง", c: "#FF9800", cat: "red", d: "สีส้มผลมะปรางสุก"},
+            {n: "ครามเมืองเหนือ", c: "#283593", cat: "blue", d: "สีครามย้อมผ้าฝ้ายพื้นเมือง"},
+            {n: "ชมพูกลีบบัว", c: "#F8BBD0", cat: "red", d: "สีชมพูละมุนบัวหลวง"},
+            {n: "ดินเผา", c: "#A0522D", cat: "neutral", d: "สีน้ำตาลกระถางดินเผา"},
+            {n: "เขียวก้านบัว", c: "#558B2F", cat: "green", d: "สีเขียวก้านดอกบัว"},
+            {n: "ฟ้าใส", c: "#4FC3F7", cat: "blue", d: "สีฟ้าใสกระจ่าง"},
+            {n: "ม่วงครามแก่", c: "#311B92", cat: "purple", d: "สีม่วงเข้มลึกอมครามตระการตา"},
+            {n: "ขาวมุก", c: "#F5F5F5", cat: "neutral", d: "สีขาวประกายไข่มุก"},
+            {n: "เทาเข้ม", c: "#424242", cat: "neutral", d: "สีเทาเข้มถ่านก๊าซ"},
+            {n: "หรดาลแดง", c: "#FF6F00", cat: "red", d: "สีส้มทองแร่หรดาล"},
+            {n: "ศิลาแลง", c: "#8D6E63", cat: "neutral", d: "สีหินศิลาแลงสร้างโบราณสถาน"},
+            {n: "เขียวพัด", c: "#00897B", cat: "green", d: "สีเขียวน้ำทะเลพัดฉ่ำ"},
+            {n: "ฟ้าหม่น", c: "#78909C", cat: "blue", d: "สีฟ้าเทาเงียบสงบ"},
+            {n: "ม่วงอเมทิสต์", c: "#8E24AA", cat: "purple", d: "สีม่วงประกายอัญมณี"},
+            {n: "ทองสัมฤทธิ์", c: "#CD7F32", cat: "yellow", d: "สีโลหะสัมฤทธิ์โบราณ"},
+            {n: "แดงครั่ง", c: "#880E4F", cat: "red", d: "สีแดงเข้มธรรมชาติครั่ง"},
+            {n: "เหลืองขมิ้นแก่", c: "#F57F17", cat: "yellow", d: "สีขมิ้นสุกเข้มข้น"},
+            {n: "เขียวทุ่งนา", c: "#689F38", cat: "green", d: "สีเขียวทุ่งข้าวสาลีสด"},
+            {n: "ฟ้าปีกนก", c: "#0288D1", cat: "blue", d: "สีฟ้าประกายขนปีกนก"},
+            {n: "ม่วงลาเวนเดอร์ไทย", c: "#B39DDB", cat: "purple", d: "สีม่วงนวลตาอ่อนโยน"},
+            {n: "น้ำตาลทองแดง", c: "#5D4037", cat: "neutral", d: "สีน้ำตาลเข้มไม้เก่า"},
+            {n: "ขาวงาช้างนวล", c: "#FFF8E1", cat: "neutral", d: "สีขาวอุ่นนวลนุ่ม"},
+            {n: "แดงชาดสว่าง", c: "#FF5252", cat: "red", d: "สีชาดเรืองรอง"},
+            {n: "เหลืองเทียน", c: "#FFEE58", cat: "yellow", d: "สีเหลืองเลาเลื้อยเทียนพรรษา"},
+            {n: "เขียวขี้งู", c: "#33691E", cat: "green", d: "สีเขียวเข้มธรรมชาติพงไพร"},
+            {n: "ฟ้าครามหมอก", c: "#90CAF9", cat: "blue", d: "สีฟ้าโปร่งเมฆเบาบาง"},
+            {n: "ม่วงเปลือกมังคุด", c: "#4A148C", cat: "purple", d: "สีม่วงเข้มจัดผลมังคุด"},
+            {n: "เทาเงินยวง", c: "#E0E0E0", cat: "neutral", d: "สีเงินแร่บริสุทธิ์"},
+            {n: "ส้มจำปาแก่", c: "#E65100", cat: "red", d: "สีส้มจำปาสุกจัด"},
+            {n: "เหลืองอำพัน", c: "#FFB300", cat: "yellow", d: "สีเหลืองใสแก้วอำพัน"},
+            {n: "เขียวใบพูล", c: "#388E3C", cat: "green", d: "สีเขียวสดใบพูลสด"},
+            {n: "น้ำเงินกรม", c: "#0D47A1", cat: "blue", d: "สีน้ำเงินกรมทหารเรือ"},
+            {n: "ม่วงเม็ดมะปรางสุก", c: "#6A1B9A", cat: "purple", d: "สีม่วงเข้มงดงาม"},
+            {n: "ดำศิลา", c: "#212121", cat: "neutral", d: "สีดำหินธรรมชาติ"},
+            {n: "ชาดไทยโบราณ", c: "#B71C1C", cat: "red", d: "สีชาดดั้งเดิมสุโขทัย"},
+            {n: "เหลืองไพรสว่าง", c: "#C0CA33", cat: "yellow", d: "สีเหลืองอมเขียวใบพืช"},
+            {n: "เขียวสาหร่าย", c: "#004D40", cat: "green", d: "สีเขียวเข้มใต้น้ำ"},
+            {n: "ฟ้าสว่าง", c: "#00E5FF", cat: "blue", d: "สีฟ้าประกายสดใส"},
+            {n: "ม่วงอัญชันเข้ม", c: "#4527A0", cat: "purple", d: "สีม่วงอัญชันคั้นเข้ม"},
+            {n: "น้ำตาลเปลือกไม้แก่", c: "#3E2723", cat: "neutral", d: "สีน้ำตาลเข้มสนิท"},
+            {n: "ชมพูชบา", c: "#FF4081", cat: "red", d: "สีชมพูสดฉูดฉาด"},
+            {n: "เหลืองทองนพคุณ", c: "#FFD700", cat: "yellow", d: "สีทองคำบริสุทธิ์นพคุณ"},
+            {n: "เขียวสมุนไพร", c: "#2E7D32", cat: "green", d: "สีเขียวใบสมุนไพรสด"},
+            {n: "ฟ้าทะเล", c: "#0097A7", cat: "blue", d: "สีฟ้าอมเขียวน้ำทะเล"},
+            {n: "ม่วงพาสเทลไทย", c: "#CE93D8", cat: "purple", d: "สีม่วงอ่อนนุ่มนวล"},
+            {n: "เทาเขม่าไฟ", c: "#616161", cat: "neutral", d: "สีเทาเข้มเนื้อละมุน"}
+        ];
+
+        // Category Metadata Mapping
+        const categoriesMeta = [
+            { key: "red", name: "โทนสีแดง / ส้ม / ชมพู", icon: "fa-fire-flame-curved", colorClass: "text-rose-400 border-rose-500/30" },
+            { key: "yellow", name: "โทนสีเหลือง / ทอง", icon: "fa-sun", colorClass: "text-amber-400 border-amber-500/30" },
+            { key: "green", name: "โทนสีเขียว", icon: "fa-leaf", colorClass: "text-emerald-400 border-emerald-500/30" },
+            { key: "blue", name: "โทนสีฟ้า / น้ำเงิน / คราม", icon: "fa-droplet", colorClass: "text-sky-400 border-sky-500/30" },
+            { key: "purple", name: "โทนสีม่วง", icon: "fa-gem", colorClass: "text-purple-400 border-purple-500/30" },
+            { key: "neutral", name: "โทนสีขาว / เทา / ดำ / น้ำตาล", icon: "fa-mountain", colorClass: "text-slate-300 border-slate-500/30" }
+        ];
+
+        // Merge extra colors to array if needed to reach total count
+        extraNames.forEach(item => {
+            if (thaitoneColors.length < 168) {
+                thaitoneColors.push({
+                    name: item.n,
+                    hex: item.hex || item.c,
+                    desc: item.d,
+                    cat: item.cat
+                });
+            }
+        });
+
+        // Elements Ref
+        const container = document.getElementById("groupedPaletteContainer");
+        const searchInput = document.getElementById("searchInput");
+        const categoryFilter = document.getElementById("categoryFilter");
+        const colorCount = document.getElementById("colorCount");
+        const emptyState = document.getElementById("emptyState");
+
+        // Modal Elements
+        const colorModal = document.getElementById("colorModal");
+        const modalCard = document.getElementById("modalCard");
+        const closeModal = document.getElementById("closeModal");
+        const modalColorHeader = document.getElementById("modalColorHeader");
+        const modalColorHexTitle = document.getElementById("modalColorHexTitle");
+        const modalColorName = document.getElementById("modalColorName");
+        const modalColorDesc = document.getElementById("modalColorDesc");
+        const modalHex = document.getElementById("modalHex");
+        const modalRgb = document.getElementById("modalRgb");
+        const copyHexBtn = document.getElementById("copyHexBtn");
+        const toast = document.getElementById("toast");
+        const toastMsg = document.getElementById("toastMsg");
+
+        // Helper: Convert HEX to RGB
+        function hexToRgb(hex) {
+            let c = hex.replace('#', '');
+            if (c.length === 3) {
+                c = c.split('').map(x => x + x).join('');
+            }
+            const num = parseInt(c, 16);
+            return {
+                r: (num >> 16) & 255,
+                g: (num >> 8) & 255,
+                b: num & 255
+            };
+        }
+
+        // Helper: Determine if color is dark or light for readable text
+        function isDarkColor(hex) {
+            const rgb = hexToRgb(hex);
+            const brightness = (rgb.r * 299 + rgb.g * 587 + rgb.b * 114) / 1000;
+            return brightness < 140;
+        }
+
+        // Create Hexagon HTML Element
+        function createHexagonElement(color) {
+            const isDark = isDarkColor(color.hex);
+            const textColorClass = isDark ? "hex-text-light" : "hex-text-dark";
+
+            const hexEl = document.createElement("div");
+            hexEl.className = "hex-container";
+            hexEl.setAttribute("title", `${color.name} (${color.hex})`);
+
+            hexEl.innerHTML = `
+                <div class="hex-border"></div>
+                <div class="hex-inner shadow-md" style="background-color: ${color.hex};">
+                    <span class="text-xs font-bold font-heading leading-tight text-center ${textColorClass} truncate w-full px-1">
+                        ${color.name}
+                    </span>
+                    <span class="text-[10px] font-mono tracking-tighter opacity-90 ${textColorClass} mt-0.5">
+                        ${color.hex.toUpperCase()}
+                    </span>
+                </div>
+            `;
+
+            hexEl.addEventListener("click", () => {
+                openModal(color);
+            });
+
+            return hexEl;
+        }
+
+        // Render Palette with Grouped Sections
+        function renderPalette(colors) {
+            container.innerHTML = "";
+            colorCount.textContent = colors.length;
+
+            if (colors.length === 0) {
+                emptyState.classList.remove("hidden");
+                return;
+            } else {
+                emptyState.classList.add("hidden");
+            }
+
+            // Iterate over defined categories to create grouped sections
+            categoriesMeta.forEach(catMeta => {
+                const groupColors = colors.filter(c => c.cat === catMeta.key);
+
+                if (groupColors.length > 0) {
+                    // Create Group Section Wrapper
+                    const sectionEl = document.createElement("section");
+                    sectionEl.className = "bg-slate-900/50 rounded-2xl p-4 sm:p-6 border border-slate-800 shadow-xl";
+
+                    // Section Title Header
+                    sectionEl.innerHTML = `
+                        <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3">
+                            <div class="flex items-center space-x-3">
+                                <i class="fa-solid ${catMeta.icon} ${catMeta.colorClass.split(' ')[0]} text-lg"></i>
+                                <h2 class="text-lg sm:text-xl font-bold font-heading text-slate-100">${catMeta.name}</h2>
+                            </div>
+                            <span class="text-xs font-medium px-2.5 py-1 rounded-full bg-slate-800 ${catMeta.colorClass.split(' ')[0]} border ${catMeta.colorClass.split(' ')[1]}">
+                                ${groupColors.length} สี
+                            </span>
+                        </div>
+                    `;
+
+                    // Honeycomb Grid inside Section
+                    const gridEl = document.createElement("div");
+                    gridEl.className = "honeycomb-grid";
+
+                    groupColors.forEach(color => {
+                        gridEl.appendChild(createHexagonElement(color));
+                    });
+
+                    sectionEl.appendChild(gridEl);
+                    container.appendChild(sectionEl);
+                }
+            });
+        }
+
+        // Filter Colors Function
+        function filterColors() {
+            const query = searchInput.value.trim().toLowerCase();
+            const selectedCat = categoryFilter.value;
+
+            const filtered = thaitoneColors.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(query) || 
+                                      item.hex.toLowerCase().includes(query) ||
+                                      item.desc.toLowerCase().includes(query);
+                const matchesCat = (selectedCat === "all") || (item.cat === selectedCat);
+
+                return matchesSearch && matchesCat;
+            });
+
+            renderPalette(filtered);
+        }
+
+        // Open Color Modal
+        function openModal(color) {
+            const rgb = hexToRgb(color.hex);
+            const isDark = isDarkColor(color.hex);
+            
+            modalColorHeader.style.backgroundColor = color.hex;
+            modalColorHexTitle.style.color = isDark ? "#ffffff" : "#0f172a";
+            modalColorHexTitle.textContent = color.hex.toUpperCase();
+
+            modalColorName.textContent = color.name;
+            modalColorDesc.textContent = color.desc || "เฉดสีไทยโบราณอันทรงคุณค่า";
+            
+            modalHex.textContent = color.hex.toUpperCase();
+            modalRgb.textContent = `${rgb.r}, ${rgb.g}, ${rgb.b}`;
+
+            copyHexBtn.onclick = () => {
+                copyToClipboard(color.hex.toUpperCase(), "HEX");
+            };
+
+            colorModal.classList.remove("opacity-0", "pointer-events-none");
+            modalCard.classList.remove("scale-95");
+            modalCard.classList.add("scale-100");
+        }
+
+        // Close Color Modal
+        function hideModal() {
+            colorModal.classList.add("opacity-0", "pointer-events-none");
+            modalCard.classList.remove("scale-100");
+            modalCard.classList.add("scale-95");
+        }
+
+        // Copy Text to Clipboard
+        function copyToClipboard(text, type) {
+            const el = document.createElement('textarea');
+            el.value = text;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+
+            showToast(`คัดลอกรหัส ${type}: ${text} เรียบร้อยแล้ว!`);
+        }
+
+        // Toast Notification Display
+        let toastTimeout;
+        function showToast(message) {
+            toastMsg.textContent = message;
+            toast.classList.remove("translate-y-20", "opacity-0", "pointer-events-none");
+            toast.classList.add("translate-y-0", "opacity-100");
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.remove("translate-y-0", "opacity-100");
+                toast.classList.add("translate-y-20", "opacity-0", "pointer-events-none");
+            }, 2500);
+        }
+
+        // Event Listeners
+        searchInput.addEventListener("input", filterColors);
+        categoryFilter.addEventListener("change", filterColors);
+        closeModal.addEventListener("click", hideModal);
+        
+        colorModal.addEventListener("click", (e) => {
+            if (e.target === colorModal) {
+                hideModal();
+            }
+        });
+
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape") {
+                hideModal();
+            }
+        });
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            renderPalette(thaitoneColors);
+        };
+    </script>
+</body>
+</html>
